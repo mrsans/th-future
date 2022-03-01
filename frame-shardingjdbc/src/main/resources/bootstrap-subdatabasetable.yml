@@ -1,0 +1,88 @@
+### 分库   水平分库
+
+spring:
+  application:
+    name: frame-shardingjdbc
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: ${spring.profiles.active}
+        group: ${spring.profiles.active}
+      config:
+        group: ${spring.profiles.active}
+        namespace: ${spring.profiles.active}
+        file-extension: yaml
+  shardingsphere:
+    enabled: true
+    props:
+      sql:
+        show: true
+    datasource:
+      # 配置数据源的名称
+      names: ds0,ds1
+      # 第一个数据源
+      ds0:
+        # 初始化连接数
+        initialSize: 50
+        # 连接池最小连接数
+        minIdle: 50
+        # 最大连接数
+        maxActive: 200
+        # 数据库连接池
+        type: com.zaxxer.hikari.HikariDataSource
+        # 数据库驱动
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        # 数据库链接
+        jdbcUrl: jdbc:mysql://localhost:3306/sharding_test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+        # 数据库用户名
+        username: root
+        # 数据库密码
+        password: root
+      # 第二个数据源
+      ds1:
+        # 初始化连接数
+        initialSize: 50
+        # 连接池最小连接数
+        minIdle: 50
+        # 最大连接数
+        maxActive: 200
+        # 数据库连接池
+        type: com.zaxxer.hikari.HikariDataSource
+        # 数据库驱动
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        # 数据库链接
+        jdbcUrl: jdbc:mysql://172.18.12.198:3306/sharding_test?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+        # 数据库用户名
+        username: root
+        # 数据库密码
+        password: root
+    sharding:
+      # 分表
+      tables:
+        # 针对哪个表进行分离
+        t_user:
+          # 哪些库对应的哪些表   【ds0   ds1】对应上面的数据源   t_user1  t_user2    共4个
+          actualDataNodes: ds${0..1}.t_user${1..2}
+          # 数据库策略
+          databaseStrategy:
+            # 行内表达式
+            inline:
+              # 根据哪个字段进行分割
+              shardingColumn: part
+              # 分割的库
+              algorithmExpression: ds${part % 2}
+          # 分表策略
+          tableStrategy:
+            # 行内表达式
+            inline:
+              # 分割字段
+              shardingColumn: id
+              # 表达式
+              algorithmExpression: t_user${id % 2 + 1}
+#      binding-tables:
+#        - t_user
+  main:
+    allow-bean-definition-overriding: true
+
+
