@@ -1,0 +1,9 @@
+server:
+  port: 9091
+spring:
+  redis:
+    host: localhost
+
+jasypt:
+  encryptor:
+    password: thunisoft

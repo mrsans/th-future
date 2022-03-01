@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package org.future.grpc.proto;
+option java_multiple_files = false;
+//option java_package = "org.future.grpc.proto";
+
+
+message ServerProtoRequest {
+  string id = 1;
+  string name = 2;
+  int32 age = 3;
+}
+
+
+message ServerProtoResponse{
+  int32 code = 1;
+  bool success = 2;
+  string message = 3;
+  string id = 4;
+}
+
+service ServerService {
+    rpc response (ServerProtoRequest) returns (ServerProtoResponse) {};
+}

@@ -1,0 +1,19 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: rpc-dubbo-consumer
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos.address:127.0.0.1:8848}
+dubbo:
+  registry:
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+  application:
+    name: ${spring.application.name}
+  protocol:
+    name: dubbo
+    port: 8001
+  consumer:
+    check: false

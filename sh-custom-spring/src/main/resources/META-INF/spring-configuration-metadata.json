@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "sh.spring.active",
+      "description": "是否激活",
+      "defaultValue": false,
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "sh.spring.version",
+      "description": "版本号",
+      "defaultValue": "v1.0",
+      "type": "java.lang.String"
+    }
+  ]
+}

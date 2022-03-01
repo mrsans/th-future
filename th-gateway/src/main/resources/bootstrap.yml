@@ -1,0 +1,23 @@
+server:
+  port: 9005
+spring:
+  profiles:
+    active: dev
+  application:
+    name: th-gateway
+  cloud:
+    gateway:
+      routes:
+      - id: th-user
+        uri: lb://th-user
+        predicates:
+        - Path=/user/**
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        group: ${spring.profiles.active}
+        namespace: ${spring.profiles.active}
+#      config:
+#        group: ${spring.profiles.active}
+#        namespace: ${spring.profiles.active}
+#        file-extension: yaml

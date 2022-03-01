@@ -1,0 +1,4 @@
+sh:
+  spring:
+    version: v.1
+    active: true

@@ -1,0 +1,21 @@
+server:
+  port: 8002
+spring:
+  application:
+    name: rpc-dubbo-producer
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+dubbo:
+  registry:
+    address: nacos://${spring.cloud.nacos.discovery.server-addr}
+  application:
+    name: ${spring.application.name}
+  protocol:
+    name: dubbo
+    port: 8003
+  scan:
+    base-packages: org.future.dubbo.api
+  consumer:
+    check: false

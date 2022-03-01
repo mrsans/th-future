@@ -1,0 +1,17 @@
+server:
+  port: 9000
+spring:
+  profiles:
+    active: dev
+  application:
+    name: th-user
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: ${spring.profiles.active}
+        group: ${spring.profiles.active}
+      config:
+        group: ${spring.profiles.active}
+        namespace: ${spring.profiles.active}
+        file-extension: yaml

@@ -1,0 +1,22 @@
+server:
+  port: 9020
+grpc:
+  server:
+    port: 9022
+    security:
+      enabled: false
+spring:
+  profiles:
+    active: dev
+  application:
+    name: th-grpc-server
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          gRPC:
+            port: ${grpc.server.port}
+        server-addr: 127.0.0.1:8848
+        service: ${spring.application.name}
+        group: ${spring.profiles.active}
+        namespace: ${spring.profiles.active}
