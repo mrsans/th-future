@@ -72,4 +72,5 @@ public class KafkaCustomPartition implements Partitioner {
         // 关闭资源
         producer.close();
     }
+
 }

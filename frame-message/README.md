@@ -21,7 +21,7 @@
   kafka 在 v2.8.0 后将zookeeper替换掉，使用独立的集群管理工具。
   目前搭建采用： zookeeper + kafka 进行搭建
 
-  准备工作：
+  #### 准备工作：
 
   系统： Centos7 jdk1.8
 
@@ -29,7 +29,7 @@
 
   命名主机：hostnamectl set-hostname kafka-[21,22,23]
 
-  zookeeper 搭建：
+  #### zookeeper 搭建：
   
   搭建目录 /opt/zookeeper   /opt/kafka
 
@@ -81,9 +81,9 @@
   查看zookeeper状态：
   
   ![](images/查看zookeeper状态.png)
-    
 
-  搭建kafka
+
+  #### 搭建kafka
 
   kafka目录结构
 
@@ -117,8 +117,8 @@
     kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --list
 
 ---
-  
-  kafka 原生代码
+
+  #### kafka 原生代码
     
    ```xml
       <dependency>
@@ -191,16 +191,16 @@
   
 
   kafka 代码整合 springboot
-  
-  kafka 原理图
+
+  #### kafka 原理图
     
   kafka的broker、topic及partition
   ![](images/kafka-Broker-topic.png)
   
   生产者发送数据流程：
   ![](images/kafka生产者发送数据流程.jpg)
-  
-  kafka分区原理：
+
+  #### kafka分区原理：
   
   kafka默认分区规则： DefaultPartition类完成
 
@@ -287,7 +287,56 @@
     }
     
   ```
-  生产者优化：
+  #### 生产者优化：
+  
+  ```properties
+    batch.size= # 默认16KB
+    linger.ms= # 等待时间，默认0ms，没有等待
+    compression.type=   # 压缩形式 采用大数据 snappy算法
+    RecordAccumulator=   # 缓冲区大小，默认为 32m
+  ```
+  ```java
+    // 修改以上参数 --> 生产者优化
+    @Slf4j
+    public class KafkaProducerTest {
+      @Test
+      public void testKafkaPartitionSet_sync() throws ExecutionException, InterruptedException {
+        Map<String, Object> configs = new HashMap<>();
+        // 链接kafka集群
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.35.21:9092, 192.168.35.22:9092");
+        // 配置key的序列化
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 配置value的序列化
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 配置分区
+        configs.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, KafkaCustomPartition.class.getName());
+        // 设置缓冲区大小 --> memory
+        configs.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 1024000);
+        // 设置批次大小，一次运输多少字节，默认16K
+        configs.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        // 设置linger.ms 等待时间， 默认0ms，不等待
+        configs.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        // 消息压缩形式
+        configs.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        // 创建一个kafka对象
+        KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+        // String topic 发送的topic， Integer partition 发送的分区，
+        // Long timestamp 发送的时间戳， Object key Object value
+        ProducerRecord<String, String> record = new ProducerRecord<>("test-topic", "222222", "first-value");
+        // 发送数据   record 是消息体，  Callback callback  回调函数
+        // producer.send(record);
+        producer.send(record, (metadata, exception) -> {
+          if (exception == null) {
+            log.info("发送完成");
+            log.info("数据信息：话题：{}, 分区：{}", metadata.topic(), metadata.partition());
+          }
+        }).get();
+        // 关闭资源
+        producer.close();
+      }
+    }
+  ```
+  #### 数据的可靠性
   
 
 
