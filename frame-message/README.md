@@ -83,6 +83,40 @@
 
   搭建kafka
 
+  kafka目录结构
+
+  ![](images\kafka目录结构.png)
+
+  1. bin 启动目录
+  2. config 配置文件
+  3. libs kafka的三方jar文件
+  4. logs kafka日志文件
+
+  kafka配置文件，conf/server.properties
+    
+    broker.id=1
+    zookeeper.connect=192.168.35.21:2181,192.168.35.22:2181,192.168.35.23:2181/kafka
+    log.dirs=/opt/kafka/kafka/logs
+    broker.id=1 每台服务器不一样  【21 为 1  22 为2  23 为3】
+    zookeeper.connect zookeeper的链接地址
+    log.dirs 日志文件存储位置
+
+  ![](images\kafka配置.png)
+  
+  启动zookeeper
+    
+    启动命令如下：
+    ./kafka-server-start.sh -daemon ../config/server.properties
+  
+  ![](images/kafka启动并查看状态.png)
+
+---
+  
+  kafka 代码整合 springboot
+
+  kafka 原理图
+
+
 
 ### pulsar
 
