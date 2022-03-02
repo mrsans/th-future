@@ -33,7 +33,7 @@
   
   搭建目录 /opt/zookeeper   /opt/kafka
 
-  zookeeper目录结构：![](images\zookeeper目录结构.png)
+  zookeeper目录结构：![](images/zookeeper目录结构.png)
   
   1. bin: 运行命令
   2. conf: 配置文件
@@ -52,7 +52,7 @@
     其中2888是服务端口，3888是选举端口
     三台机器都要进行相应的配置
 
-  ![](images\zookeeper配置文件编辑.png)
+  ![](images/zookeeper配置文件编辑.png)
   
   在zookeeper根目录下创建datas目录。
 
@@ -64,8 +64,8 @@
     echo 2 > datas/myid    192.168.35.22
     echo 3 > datas/myid    192.168.35.23
 
-  ![](images\myid配置.png)
-  
+  ![](images/myid配置.png)
+
   启动zookeeper
   
   进入zookeeper的bin目录下，三台机器均执行如下命令：
@@ -85,7 +85,7 @@
 
   kafka目录结构
 
-  ![](images\kafka目录结构.png)
+  ![](images/kafka目录结构.png)
 
   1. bin 启动目录
   2. config 配置文件
@@ -101,7 +101,7 @@
     zookeeper.connect zookeeper的链接地址
     log.dirs 日志文件存储位置
 
-  ![](images\kafka配置.png)
+  ![](images/kafka配置.png)
   
   启动zookeeper
     
