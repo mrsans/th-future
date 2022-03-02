@@ -1,7 +1,7 @@
 # sharind-jdbc
 
 ## 简介：
-    1. Apache ShardingSphere 是一套开源的分布式数据库
+    1. Apache ShardingSphere 是一套开源的分布式数据库插件
     2. 可进行读写分离
     3. 可进行分库分表
     4. 可进行分布式事务
