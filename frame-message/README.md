@@ -337,11 +337,125 @@
     }
   ```
   #### 数据的可靠性
+  ACKS：应答方式
+
+  0：生产者发送的数据，不需要等待应答
+
+  1：生产者发送数据，Leader收到数据后应答
+
+  -1（all）：生产者发送的数据，Leader和isr队列所有的数据节点收齐数据后应答
   
+  ACKS 应答可靠性：
+  
+  如果设置为0，那么 不需要落盘，就应答 Leader 挂了，所有消息会丢失
+  
+  如果设置为1，那么 Leader 落盘后，即可返回应答，如果 Leader 挂了， 那么就会丢失相应的消息
 
+  如果设置为-1，那么leader收到消息后，会同步到其他follower后，再返回相应的消息，缺点：如果有follower挂了后，会导致leader一直无法相应
 
+  如果设置为-1.如果leader长时间未收到follower发送的请求，那么follower将剔除集群repllca.lag.time.max.ms参数，默认30s
 
+  如果设置为-1，在leader节点down机的一瞬间，生产者未收到acks应答，那么生产者会继续向队列中发送消息，导致消息重复发送
 
+  ![](images/kafka-Acks应答.jpg)
+  ![](images/kafka数据可靠性.jpg)
+  ![](images/kafka-Acks选择.jpg)
+
+  ACKS应答代码
+  
+  ```java
+     // 设置kafka的acks应答
+    @Slf4j
+    public class KafkaProducerTest {
+        @Test
+        public void testKafkaACKS() throws ExecutionException, InterruptedException {
+          Map<String, Object> configs = new HashMap<>();
+          // 链接kafka集群
+          configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.35.21:9092, 192.168.35.22:9092");
+          // 配置key的序列化
+          configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+          // 配置value的序列化
+          configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+          // 配置kafka的acks
+          configs.put(ProducerConfig.ACKS_CONFIG, "1");
+          //重试次数
+          configs.put(ProducerConfig.RETRIES_CONFIG, 0);
+          // 创建一个kafka对象
+          KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+          // String topic 发送的topic， Integer partition 发送的分区，
+          // Long timestamp 发送的时间戳， Object key Object value
+          ProducerRecord<String, String> record = new ProducerRecord<>("test-topic", "222222", "first-value");
+          // 发送数据   record 是消息体，  Callback callback  回调函数
+          // producer.send(record);
+          producer.send(record, (metadata, exception) -> {
+          if (exception == null) {
+          log.info("发送完成");
+          log.info("数据信息：话题：{}, 分区：{}", metadata.topic(), metadata.partition());
+          }
+          }).get();
+          // 关闭资源
+          producer.close();
+        }
+    }
+  ```
+
+  ### kafka数据的幂等性
+  
+  kafka的幂等性是通过 <PID,Partition,SeqNumber> 来决定的，PID当kafka重启的时候，会产生新的PID，所以不能完全保证数据不重复
+    
+  参数配置：enable.idempotence = true 默认为true
+  
+  ![](images/kafka-幂等性.jpg)
+
+  ### kafka事务
+  ![](images/kafka-事务.jpg)
+
+  ```java
+    @Slf4j
+    public class KafkaTranactionsTest {
+    
+      @Test
+      public void kafkaTranactionTest_1() {
+        Map<String, Object> configs = new HashMap<>();
+        // 链接kafka集群
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.35.21:9092, 192.168.35.22:9092");
+        // 配置key的序列化
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 配置value的序列化
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 创建一个kafka对象
+        KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+        // String topic 发送的topic， Integer partition 发送的分区，
+        // Long timestamp 发送的时间戳， Object key Object value
+        ProducerRecord<String, String> record = new ProducerRecord<>("test-topic", "first-value");
+        // 指定事务ID
+        configs.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "trans_id");
+        // 初始化事务
+        producer.initTransactions();
+        // 开启事务
+        producer.beginTransaction();
+        try {
+          // 发送数据   record 是消息体，  Callback callback  回调函数
+          // producer.send(record);
+          producer.send(record, (metadata, exception) -> {
+            if (exception == null) {
+              log.info("发送完成");
+              log.info("数据信息：话题：{}, 分区：{}", metadata.topic(), metadata.partition());
+            }
+          });
+          // 事务提交
+          producer.commitTransaction();
+        } catch (Exception ex) {
+          // 事务回滚
+          producer.abortTransaction();
+        } finally {
+          // 关闭资源
+          producer.close();
+        }
+      }
+    
+    }
+  ```
 ### pulsar
 
 

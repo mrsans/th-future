@@ -73,6 +73,7 @@ public class KafkaProducerTest {
         producer.close();
     }
 
+    // 设置kafka分区
     @Test
     public void testKafkaPartitionSet_sync() throws ExecutionException, InterruptedException {
         Map<String, Object> configs = new HashMap<>();
@@ -92,6 +93,37 @@ public class KafkaProducerTest {
         configs.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         // 消息压缩形式
         configs.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        // 创建一个kafka对象
+        KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
+        // String topic 发送的topic， Integer partition 发送的分区，
+        // Long timestamp 发送的时间戳， Object key Object value
+        ProducerRecord<String, String> record = new ProducerRecord<>("test-topic", "222222", "first-value");
+        // 发送数据   record 是消息体，  Callback callback  回调函数
+        // producer.send(record);
+        producer.send(record, (metadata, exception) -> {
+            if (exception == null) {
+                log.info("发送完成");
+                log.info("数据信息：话题：{}, 分区：{}", metadata.topic(), metadata.partition());
+            }
+        }).get();
+        // 关闭资源
+        producer.close();
+    }
+
+    // 设置kafka的acks应答
+    @Test
+    public void testKafkaACKS() throws ExecutionException, InterruptedException {
+        Map<String, Object> configs = new HashMap<>();
+        // 链接kafka集群
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.35.21:9092, 192.168.35.22:9092");
+        // 配置key的序列化
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 配置value的序列化
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        // 配置kafka的acks
+        configs.put(ProducerConfig.ACKS_CONFIG, "1");
+        //重试次数
+        configs.put(ProducerConfig.RETRIES_CONFIG, 0);
         // 创建一个kafka对象
         KafkaProducer<String, String> producer = new KafkaProducer<>(configs);
         // String topic 发送的topic， Integer partition 发送的分区，
