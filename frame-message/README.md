@@ -35,7 +35,7 @@
 
   zookeeper目录结构：
   
-  ![](images/zookeeper目录结构.png)
+  ![](images/kafka/zookeeper目录结构.png)
   
   1. bin: 运行命令
   2. conf: 配置文件
@@ -54,7 +54,7 @@
     其中2888是服务端口，3888是选举端口
     三台机器都要进行相应的配置
 
-  ![](images/zookeeper配置文件编辑.png)
+  ![](images/kafka/zookeeper配置文件编辑.png)
   
   在zookeeper根目录下创建datas目录。
 
@@ -66,7 +66,7 @@
     echo 2 > datas/myid    192.168.35.22
     echo 3 > datas/myid    192.168.35.23
 
-  ![](images/myid配置.png)
+  ![](images/kafka/myid配置.png)
 
   启动zookeeper
   
@@ -74,20 +74,20 @@
   
     ./zkServer.sh start
 
-  ![](images/zookeeper启动.png)
+  ![](images/kafka/zookeeper启动.png)
 
   启动完成
   
   查看zookeeper状态：
   
-  ![](images/查看zookeeper状态.png)
+  ![](images/kafka/查看zookeeper状态.png)
 
 
   #### 搭建kafka
 
   kafka目录结构
 
-  ![](images/kafka目录结构.png)
+  ![](images/kafka/kafka目录结构.png)
 
   1. bin 启动目录
   2. config 配置文件
@@ -103,14 +103,14 @@
     zookeeper.connect zookeeper的链接地址
     log.dirs 日志文件存储位置
 
-  ![](images/kafka配置.png)
+  ![](images/kafka/kafka配置.png)
   
   启动zookeeper
     
     启动命令如下：
     ./kafka-server-start.sh -daemon ../config/server.properties
   
-  ![](images/kafka启动并查看状态.png)
+  ![](images/kafka/kafka启动并查看状态.png)
   
   查看kafka中的topic
 
@@ -195,10 +195,10 @@
   #### kafka 原理图
     
   kafka的broker、topic及partition
-  ![](images/kafka-Broker-topic.png)
+  ![](images/kafka/kafka-Broker-topic.png)
   
   生产者发送数据流程：
-  ![](images/kafka生产者发送数据流程.jpg)
+  ![](images/kafka/kafka生产者发送数据流程.jpg)
 
   #### kafka分区原理：
   
@@ -357,9 +357,9 @@
 
   如果设置为-1，在leader节点down机的一瞬间，生产者未收到acks应答，那么生产者会继续向队列中发送消息，导致消息重复发送
 
-  ![](images/kafka-Acks应答.jpg)
-  ![](images/kafka数据可靠性.jpg)
-  ![](images/kafka-Acks选择.jpg)
+  ![](images/kafka/kafka-Acks应答.jpg)
+  ![](images/kafka/kafka数据可靠性.jpg)
+  ![](images/kafka/kafka-Acks选择.jpg)
 
   ACKS应答代码
   
@@ -405,10 +405,10 @@
     
   参数配置：enable.idempotence = true 默认为true
   
-  ![](images/kafka-幂等性.jpg)
+  ![](images/kafka/kafka-幂等性.jpg)
 
   ### kafka事务
-  ![](images/kafka-事务.jpg)
+  ![](images/kafka/kafka-事务.jpg)
 
   ```java
     @Slf4j
@@ -456,6 +456,28 @@
     
     }
   ```
+  ### kafka 数据有序
+  数据有序可以使用2种：
+  
+  1. 多分区情况：如果是多分区，那么可以将消息拉到程序中，进行排序，然后消费
+  2. 单分区情况：
+     1. kafka v1.x需要考虑到数据乱序情况，由于在生产者中，默认可以缓存5个请求，当请求1，请求2发送成功，请求3失败，但是请求4成功，那么单分区存在的消息为：1，2，4，请求3丢失，导致消息乱序
+        那么，可以配置参数 max.in.flight.requests.per.connection=1，此参数可以控制请求数只能缓存1个。
+     2. kafka v1.x+ 如果未开启幂等性，那么需要设置 max.in.flight.requests.per.connection=1
+        如果开启了幂等性，那么只需要设置：max.in.flight.requests.per.connection <= 5 即可
+     
+  具体如下图：
+  ![](images/kafka/kafka-数据有序性.jpg)
+
+ ### kafka 在zookeeper上的
+
+  ![](images/kafka/kafka-zookeeper存储中的信息.jpg)
+    
+ ### kafka Broker工作流程
+
+  ![](images/kafka/kafka-brokers流程.jpg)
+
+
 ### pulsar
 
 
