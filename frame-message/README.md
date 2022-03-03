@@ -404,7 +404,7 @@ public class KafkaProducerTest {
 }
   ```
 
-### kafka数据的幂等性
+#### kafka数据的幂等性
 
 kafka的幂等性是通过 <PID,Partition,SeqNumber> 来决定的，PID当kafka重启的时候，会产生新的PID，所以不能完全保证数据不重复
 
@@ -412,7 +412,7 @@ kafka的幂等性是通过 <PID,Partition,SeqNumber> 来决定的，PID当kafka�
 
 ![](images/kafka/kafka-幂等性.jpg)
 
-### kafka事务
+#### kafka事务
 
 ![](images/kafka/kafka-事务.jpg)
 
@@ -464,7 +464,7 @@ public class KafkaTranactionsTest {
 }
   ```
 
-### kafka 数据有序
+#### kafka 数据有序
 
 数据有序可以使用2种：
 
@@ -478,15 +478,15 @@ public class KafkaTranactionsTest {
 具体如下图：
 ![](images/kafka/kafka-数据有序性.jpg)
 
-### kafka 在zookeeper上的
+#### kafka 在zookeeper上的
 
 ![](images/kafka/kafka-zookeeper存储中的信息.jpg)
 
-### kafka Broker工作流程
+#### kafka Broker工作流程
 
 ![](images/kafka/kafka-brokers流程.jpg)
 
-### kafka的节点服役和退役
+#### kafka的节点服役和退役
 
 1. 节点的服役
 
@@ -560,14 +560,75 @@ public class KafkaTranactionsTest {
    ```
 
 ![](images/kafka/kafka-节点退役-生成json.jpg)
-  将生成的json放到 topic-remove-json.json文件中,然后指定此文件执行即可
+将生成的json放到 topic-remove-json.json文件中,然后指定此文件执行即可
+
 ```shell
 ./bin/kafka-reassign-partitions.sh --bootstrap-server 127.0.0.1:9092 --reassignment-json-file ../topic-remove-json.json --execute
 ./bin/kafka-reassign-partitions.sh --bootstrap-server 127.0.0.1:9092 --reassignment-json-file ../topic-remove-json.json --verify
 ./bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --topic test-topic --describe
 ```
+
 ![](images/kafka/kafka-节点退役-查看状态.jpg)
 
+#### kafka 副本
+
+副本可提高数据的可靠性
+
+kafka所有的生产者和消费者都针对的是leader服务器，follower会从leader进行同步数据
+
+Kafka所有的副本叫做AR
+
+AR = ISR +OSR
+
+ISR 为leader保持同步的follower，如果follower长时间没有同步leader，那么此follower会从ISR中被剔除，默认时间30s，可通过 replica.lag.time.max.ms参数设置
+当Leader发生故障，会从ISR中选择新的Leader
+
+OSR 为follower与leader副本同步时，延迟过多的副本，即：超过30s未同步leader的
+
+#### Leader选举流程
+   
+   查看  kafka Broker工作流程
+
+
+#### follower故障处理
+
+   LEO （Log End Offset） 每个副本最后一个offset，LEO其实就是最新的 offset + 1
+
+   HW （High Watermark） 所有副本中最小的 LEO
+
+   当出现follower挂了的情况，优先在 ISR队列中剔除
+
+   ISR 【0  1   2】
+                           
+   Leader                  
+                          
+   0 1 2 3 4 5 6 7 8       
+                           
+   F1                      
+                           
+   0 1 2 3 4               
+                           
+   F2                      
+                           
+   0 1 2 3 4 5 6           
+   
+   从 以上可以看出，F1的LEO为5，F2的LEO为7，HW为5，当F2出现故障时，优先从ISR中剔除2,接下来F2会删除 【5 6】 数据， 然后从leader中继续同步【5】以后的数据，直到追到其他follower的HW，恢复集群状态
+
+   
+#### Leader故障处理
+   
+   如果leader发生故障，那么会优先选出leader，选出完成后，所有follower上的数据，都要同步新的leader，如果数据多于新leader，那么follower要删除多于的数据，重新同步leader
+
+#### 手动调整分区
+   
+   当集群硬盘差距相对较大时，就需要给小的磁盘分配较少的数据，就需要我们手动指定分区分到哪些broker上
+      
+   ```shell
+    
+    
+   ```
+   
+   
 
 
 
