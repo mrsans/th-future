@@ -160,6 +160,21 @@ public class TestArrayList {
     }
 ```
 
+##### ArrayList#add(int index, E element)
+
+此方法会首先检查index是否大于size，或者小于0，如果满足，那么抛出异常，索引越界异常，然后判断是否需要进行扩容，因为只添加了一个元素，所以+1即可，
+然后进行数据拷贝，因为涉及到数组移动，先将原数组的参数index位置及以后的数据后移，然后将index位置插入 element 元素即可
+
+```java
+    public void add(int index, E element) {
+        rangeCheckForAdd(index);
+        ensureCapacityInternal(size + 1);  
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+    }
+```
+
 ##### ArrayList#addAll(int index, Collection<? extends E> c)
 此方法会优先检查index索引是否超过了数组有元素的长度或Index<0，那么抛出IndexOutOfBoundsException异常，索引越界
 ```java
@@ -182,7 +197,8 @@ public class TestArrayList {
     }
 ```
 
-java#ArrayList#add方法示例
+java#ArrayList#添加方法示例
+
 ```java
 
 @Slf4j
@@ -210,12 +226,22 @@ public class TestArrayList {
         list.addAll(1, tempList);
         log.info("data：{}", list);
     }
+    // 向集合固定位置添加一个元素
+    @Test
+    public void testAddEle() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("10");
+        list.add(1, "888");
+        log.info("AddEle添加的结果为：{}", list);
+    }
 }
 ```
 
 #### ArrayList 查询
 
-##### ArrayList#get
+##### ArrayList#get(int index)
 
 查询集合中的元素：首先判断index索引是否超过了当前数组的长度，如果超过了，那么抛出IndexOutOfBoundsException异常
 如果没超过，那么直接返回数组对应的下标元素
@@ -257,9 +283,58 @@ indexOf方法传递一个对象，首先判断参数对象是否是null，如果
     }
 ```
 
+##### ArrayList#lastIndexOf(Object o)
 
+lastIndexOf方法传递一个对象，和indexOf方法一致，只不过是倒叙查询
 
-ArrayList的get方法示例：
+```java
+    public int lastIndexOf(Object o) {
+        if (o == null) {
+            for (int i = size-1; i >= 0; i--)
+                if (elementData[i]==null)
+                    return i;
+        } else {
+            for (int i = size-1; i >= 0; i--)
+                if (o.equals(elementData[i]))
+                    return i;
+        }
+        return -1;
+    }
+```
+
+##### ArrayList#contains(Object o)
+
+此方法判断是否包含某个元素，如果包含，返回true，如果不包含返回false，源码和 indexOf 一致
+
+```java
+public boolean contains(Object o) {
+    return indexOf(o) >= 0;
+}
+```
+
+##### ArrayList#containsAll(Collection<?> c)
+
+此方法判断集合中是否包含另一个集合所有元素，如果包含返回true，否则返回false。可以看到，循环调用自身的 contains方法，如果有一个不包含，那么直接返回false
+
+```java
+public boolean containsAll(Collection<?> c) {
+    for (Object e : c)
+        if (!contains(e))
+            return false;
+    return true;
+}
+```
+##### ArrayList#isEmpty()
+
+判断集合是否没有元素，如果没有元素返回true，有元素返回false,源码是查看数组的size是否为0
+
+```java
+public boolean isEmpty() {
+    return size == 0;
+}
+```
+
+ArrayList的查询方法示例：
 ```java
 @Slf4j
 public class TestArrayList {
@@ -285,13 +360,191 @@ public class TestArrayList {
         list.add("9723e9324");
         log.info("indexOf查询到的元素为：{}", list.indexOf("4576"));
     }
+
+    // 查询集合中的元素索引位置倒叙查询
+    @Test
+    public void testLastIndexOf() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("lastIndexOf查询到的元素为：{}", list.lastIndexOf("123"));
+    }
+    // 判断集合中是否包含了 参数对象元素，如果包含返回true，否则返回false
+    @Test
+    public void testContains() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("contains是否包含元素：{}", list.contains("4576"));
+    }
+    // 判断集合中是否包含另一个集合所有元素
+    @Test
+    public void testContainsAll() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("123");
+        tempList.add("9723e9");
+        log.info("contains是否包含元素：{}", list.containsAll(tempList));
+    }
+    // 判断集合是否没有元素，如果有元素返回false，没有元素返回true
+    @Test
+    public void testIsEmpty() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("isEmpty判断集合是否没有元素：{}", list.isEmpty());
+    }
 }
 ```
 
+### ArrayList#集合元素的修改
 
+#### ArrayList#set(int index, E element)
 
+此方法优先查看index的值的范围，如果越界，那么抛出索引越界异常，负责取出旧的值，然后将新值替换，并返回旧值
 
+```java
+public E set(int index, E element) {
+    rangeCheck(index);
+    E oldValue = elementData(index);
+    elementData[index] = element;
+    return oldValue;
+}
+```
 
+```java
+ @Slf4j
+public class TestArrayList {
+
+    // 集合变更固定位置元素
+    @Test
+    public void testSet() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.set(2, "77777");
+        log.info("set修改固定位置的元素：{}", list);
+    }
+}
+```
+#### ArrayList#集合的删除
+
+##### ArrayList#clear()
+
+从clear中可以看出，此方法是循环清空的。最后将size置为0
+
+```java
+public void clear() {
+    modCount++;
+    for (int i = 0; i < size; i++)
+        elementData[i] = null;
+    size = 0;
+}
+```
+
+##### ArrayList#remove(Object o)
+此方法分为两步进行删除对象，如果对象为null，那么循环判断null，并取到符合的索引，如果不为null，那么调用对象的equals方法，进行循环查询，如果查到了，
+那么取到对应的索引，然后传递给fastRemove(index)方法，进行删除。fastRemove方法可以看出，数组先进行拷贝，将原来的位置数据覆盖，然后最后一位 size - 1
+的位置数据置为null，然后size - 1 即可。
+```java
+public boolean remove(Object o) {
+    if (o == null) {
+        for (int index = 0; index < size; index++)
+            if (elementData[index] == null) {
+                fastRemove(index);
+                return true;
+            }
+    } else {
+        for (int index = 0; index < size; index++)
+            if (o.equals(elementData[index])) {
+                fastRemove(index);
+                return true;
+            }
+    }
+    return false;
+}
+
+private void fastRemove(int index) {
+    modCount++;
+    int numMoved = size - index - 1;
+    if (numMoved > 0)
+        System.arraycopy(elementData, index+1, elementData, index,numMoved);
+    elementData[--size] = null; // clear to let GC do its work
+}
+```
+
+##### ArrayList#remove(Object o)
+
+此方法可以看出先判断index索引是否越界，如果越界，那么抛出异常，然后取到对应位置的旧数据，然后数组拷贝，将原来的位置数据覆盖，最后一个位置置为null，
+然后最后一位 size - 1
+
+```java
+public E remove(int index) {
+    rangeCheck(index);
+    modCount++;
+    E oldValue = elementData(index);
+    int numMoved = size - index - 1;
+    if (numMoved > 0)
+        System.arraycopy(elementData, index+1, elementData, index,  numMoved);
+    elementData[--size] = null; // clear to let GC do its work
+    return oldValue;
+}
+```
+
+```java
+@Slf4j
+public class TestArrayList {
+    // 清除集合所有元素
+    @Test
+    public void testClear() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.clear();
+        log.info("clear清除集合所有元素：{}", list);
+    }
+
+    // 移除集合中一个对象，多个重复的，只删除查询到的第一个
+    @Test
+    public void testRemove_1() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.remove("123");
+        log.info("remove删除一个对象：{}", list);
+    }
+
+    // remove删除对应索引位置的对象
+    @Test
+    public void testRemove_2() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.remove(2);
+        log.info("remove删除对应索引位置的对象：{}", list);
+    }
+}
+```
 
 
 

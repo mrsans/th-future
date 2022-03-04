@@ -13,7 +13,94 @@ import java.util.List;
 @Slf4j
 public class TestArrayList {
 
-    // 查询集合中的元素索引位置
+    // remove删除对应索引位置的对象
+    @Test
+    public void testRemove_2() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.remove(2);
+        log.info("remove删除对应索引位置的对象：{}", list);
+    }
+
+    // 移除集合中一个对象，多个重复的，只删除查询到的第一个
+    @Test
+    public void testRemove_1() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.remove("123");
+        log.info("remove删除一个对象：{}", list);
+    }
+
+    // 清除集合所有元素
+    @Test
+    public void testClear() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.clear();
+        log.info("clear清除集合所有元素：{}", list);
+    }
+
+    // 集合变更固定位置元素
+    @Test
+    public void testSet() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        list.set(2, "77777");
+        log.info("set修改固定位置的元素：{}", list);
+    }
+
+    // 判断集合是否没有元素，如果有元素返回false，没有元素返回true
+    @Test
+    public void testIsEmpty() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("isEmpty判断集合是否没有元素：{}", list.isEmpty());
+    }
+
+    // 判断集合中是否包含另一个集合所有元素
+    @Test
+    public void testContainsAll() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("123");
+        tempList.add("9723e9");
+        list.containsAll(tempList);
+        log.info("containsAll是否包含另一个集合所有元素：{}", list.containsAll(tempList));
+    }
+
+    // 判断集合中是否包含了 参数对象元素，如果包含返回true，否则返回false
+    @Test
+    public void testContains() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("contains是否包含元素：{}", list.contains("4576"));
+    }
+
+    // 查询集合中的元素索引位置 倒叙
     @Test
     public void testLastIndexOf() {
         List<String> list = new ArrayList<>();
@@ -53,6 +140,17 @@ public class TestArrayList {
         list.add("123");
         list.add("456");
         log.info("data：{}", list);
+    }
+
+    // 向集合固定位置添加一个元素
+    @Test
+    public void testAddEle() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("10");
+        list.add(1, "888");
+        log.info("AddEle添加的结果为：{}", list);
     }
 
     @Test
