@@ -18,7 +18,7 @@ List是一个接口，主要的实现类有以下几个
 
 ### ArrayList
 
-ArrayList#Construct 构造器：
+#### ArrayList#Construct 构造器：
 
 1. 无参构造器： 可以看出，当我们创建一个对象的时候，就是一个空对象，没有初始容量，即：创建一个空的元素的数组
 
@@ -85,14 +85,71 @@ public class TestArrayList {
 }
 ```
 
-ArrayList#add()
+#### ArrayList#add()
+
+向集合中添加数据
+
+```java
+    public boolean add(E e) {
+        // 判断  size + 1 是否超过了长度，size为当前的数组长度，如果超过长度，那么进行增长
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        // 向数组中添加元素
+        elementData[size++] = e;
+        // 添加成功返回true
+        return true;
+    }
+
+    private void ensureCapacityInternal(int minCapacity) {
+        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+    }
+
+    private static final int DEFAULT_CAPACITY = 10;
+    // 计算容量    当前数组元素     当前数组.length + 1 的容量
+    // 如果数组元素是空元素，那么取值为 10 和 minCapacity 最大值作为容量
+    // 如果数组元素不为空，那么直接返回 参数 minCapacity 的容量
+    private static int calculateCapacity(Object[] elementData, int minCapacity) {
+      if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+         return Math.max(DEFAULT_CAPACITY, minCapacity);
+      }
+      return minCapacity;
+    }
+    
+    private void ensureExplicitCapacity(int minCapacity) {
+        modCount++;
+        // 如果 minCapacity 的容量 已经超过 数组长度，那么进行扩容，负责什么都不做
+        if (minCapacity - elementData.length > 0)
+            // 开始扩容
+            grow(minCapacity);
+    }
+    /**
+     * The maximum size of array to allocate. 
+     * Some VMs reserve some header words in an array. 
+     * Attempts to allocate larger arrays may result in OutOfMemoryError:
+     * Requested array size exceeds VM limit
+     */
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+    private void grow(int minCapacity) {
+        // overflow-conscious code
+        int oldCapacity = elementData.length;
+        // 新的容量   旧的容量 + 旧的容量右移一位
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        // 如果新的容量 小于  传递的参数容量
+        if (newCapacity - minCapacity < 0)
+        // 那么赋值成参数容量
+            newCapacity = minCapacity;
+        // 如果超过int的最大值，那么直接扩容到最大值减 8 ；减 8 因为JVM内存分配对象头的原因
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        // 进行数组的拷贝
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+```
 
 
 ```java
 
 @Slf4j
 public class TestArrayList {
-  
     // 测试集合添加元素
     @Test
     public void testAdd() {
@@ -101,7 +158,6 @@ public class TestArrayList {
         list.add("456");
         log.info("data：{}", list);
     }
-    
 }
 ```
 
