@@ -586,51 +586,87 @@ ISR 为leader保持同步的follower，如果follower长时间没有同步leader
 OSR 为follower与leader副本同步时，延迟过多的副本，即：超过30s未同步leader的
 
 #### Leader选举流程
-   
-   查看  kafka Broker工作流程
 
+查看 kafka Broker工作流程
 
 #### follower故障处理
 
-   LEO （Log End Offset） 每个副本最后一个offset，LEO其实就是最新的 offset + 1
+LEO （Log End Offset） 每个副本最后一个offset，LEO其实就是最新的 offset + 1
 
-   HW （High Watermark） 所有副本中最小的 LEO
+HW （High Watermark） 所有副本中最小的 LEO
 
-   当出现follower挂了的情况，优先在 ISR队列中剔除
+当出现follower挂了的情况，优先在 ISR队列中剔除
 
-   ISR 【0  1   2】
-                           
-   Leader                  
-                          
-   0 1 2 3 4 5 6 7 8       
-                           
-   F1                      
-                           
-   0 1 2 3 4               
-                           
-   F2                      
-                           
-   0 1 2 3 4 5 6           
-   
-   从 以上可以看出，F1的LEO为5，F2的LEO为7，HW为5，当F2出现故障时，优先从ISR中剔除2,接下来F2会删除 【5 6】 数据， 然后从leader中继续同步【5】以后的数据，直到追到其他follower的HW，恢复集群状态
+ISR 【0 1 2】
 
-   
+Leader
+
+0 1 2 3 4 5 6 7 8
+
+F1
+
+0 1 2 3 4
+
+F2
+
+0 1 2 3 4 5 6
+
+从 以上可以看出，F1的LEO为5，F2的LEO为7，HW为5，当F2出现故障时，优先从ISR中剔除2,接下来F2会删除 【5 6】 数据， 然后从leader中继续同步【5】以后的数据，直到追到其他follower的HW，恢复集群状态
+
 #### Leader故障处理
-   
-   如果leader发生故障，那么会优先选出leader，选出完成后，所有follower上的数据，都要同步新的leader，如果数据多于新leader，那么follower要删除多于的数据，重新同步leader
+
+如果leader发生故障，那么会优先选出leader，选出完成后，所有follower上的数据，都要同步新的leader，如果数据多于新leader，那么follower要删除多于的数据，重新同步leader
 
 #### 手动调整分区
-   
-   当集群硬盘差距相对较大时，就需要给小的磁盘分配较少的数据，就需要我们手动指定分区分到哪些broker上
-      
+
+当集群硬盘差距相对较大时，就需要给小的磁盘分配较少的数据，就需要我们手动指定分区分到哪些broker上
+
    ```shell
-    
-    
+    # 创建一个新的topic，名称为：fix-partition
+    ./bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --create --partitions 3 --replication-factor 2 --topic fix-partition
+    # 查看分区状态
+    ./bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --describe --topic fix-partition
    ```
-   
-   
 
+![](images/kafka/kafka-指定分区-1.jpg)
 
+创建副本执行计划命名为：fix-partition-josn.json[可以自定义]，为如下json：[目前搭建的broker为：broker-1，broker-2，broker-3]
+
+   ```json
+      {
+        "version": 1,
+        "partitions": [
+          {"topic": "fix-partition", "partition": 0, "replicas": [1,2]},
+          {"topic": "fix-partition", "partition": 1, "replicas": [1,2]},
+          {"topic": "fix-partition", "partition": 2, "replicas": [1,2]}
+        ]
+      }
+   ```
+执行如下命令：
+   ```shell
+    ./bin/kafka-reassign-partitions.sh --bootstrap-server 127.0.0.1:9092 --reassignment-json-file ../fix-partition-json.json --execute
+  ```
+验证副本存储计划：
+```shell
+./bin/kafka-reassign-partitions.sh --bootstrap-server 127.0.0.1:9092 --reassignment-json-file ../fix-partition-json.json --verify
+```
+执行完成后，如下图：
+
+![](images/kafka/kafka-指定分区-验证.jpg)
+
+kafka自动分区：
+
+生产环境中要注意：如果设置了此致，当容量超过10%的时候，会自动触发自动负载均衡，所以要注意性能。
+![](images/kafka/kafka-自动分区.jpg)
+
+#### kafka的文件存储
+
+   kafka文件存储：
+   
+   kafka是一个broker中包含了多个topic，而topic又可以分成多个partition，而partition的底层存储是由log文件组成，log文件又分成了多个Segment，
+   而Segment由 [.log 日志文件 默认1G， .index 偏移索引文件， .timeindex 时间戳索引文件， 其他文件] 文件组成，index索引文件名是以第一个索引为名称
+   
+![](images/kafka/kafka-文件存储图解.jpg)
 
 
 
