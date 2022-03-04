@@ -13,6 +13,63 @@ import java.util.List;
 @Slf4j
 public class TestArrayList {
 
+    // 查询集合中的元素索引位置
+    @Test
+    public void testLastIndexOf() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("lastIndexOf查询到的元素为：{}", list.lastIndexOf("123"));
+    }
+
+    // 查询集合中的元素索引位置
+    @Test
+    public void testIndexOf() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("indexOf查询到的元素为：{}", list.indexOf("4576"));
+    }
+
+    // 查询集合中的元素
+    @Test
+    public void testGet() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("get查询到的元素为：{}", list.get(2));
+    }
+
+    // 测试集合添加元素
+    @Test
+    public void testAdd() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("456");
+        log.info("data：{}", list);
+    }
+
+    @Test
+    public void testAddAll() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("123");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("new-temp-1");
+        tempList.add("new-temp-2");
+        list.addAll(tempList);
+        log.info("data：{}", list);
+        list.addAll(1, tempList);
+        log.info("data：{}", list);
+    }
+
     @Test
     public void testConstruct() {
         // 创建一个ArrayList对象 没有任何元素
@@ -30,13 +87,5 @@ public class TestArrayList {
         log.info("创建一个有初始化元素的集合, size:{}, data:{}", list_3.size(), list_3);
     }
 
-    // 测试集合添加元素
-    @Test
-    public void testAdd() {
-        List<String> list = new ArrayList<>();
-        list.add("123");
-        list.add("456");
-        log.info("data：{}", list);
-    }
 
 }

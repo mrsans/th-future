@@ -84,8 +84,9 @@ public class TestArrayList {
     }
 }
 ```
+### ArrayList#添加方法
 
-#### ArrayList#add()
+##### ArrayList#add()
 
 向集合中添加数据
 
@@ -131,7 +132,7 @@ public class TestArrayList {
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
-        // 新的容量   旧的容量 + 旧的容量右移一位
+        // 新的容量   旧的容量 + 旧的容量右移一位 即： 当前容量的1.5倍
         int newCapacity = oldCapacity + (oldCapacity >> 1);
         // 如果新的容量 小于  传递的参数容量
         if (newCapacity - minCapacity < 0)
@@ -144,8 +145,44 @@ public class TestArrayList {
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 ```
+##### ArrayList#addAll(Collection<? extends E> c)
 
+传递一个集合参数，不能为null，否则抛出空指针异常，可以看出，获取参数集合的长度+当前有元素的数组的长度，如果长度不够那么进行扩容，
+扩容为1.5倍扩容，然后采用System.arraycopy拷贝的形式将参数集合复制到新的集合中。
+```java
+    public boolean addAll(Collection<? extends E> c) {
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        ensureCapacityInternal(size + numNew);  // Increments modCount
+        System.arraycopy(a, 0, elementData, size, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+```
 
+##### ArrayList#addAll(int index, Collection<? extends E> c)
+此方法会优先检查index索引是否超过了数组有元素的长度或Index<0，那么抛出IndexOutOfBoundsException异常，索引越界
+```java
+    public boolean addAll(int index, Collection<? extends E> c) {
+        // 检查索引是否超过含有元素的数组长度，或者小于0，如果符合，那么抛出 索引月结异常
+        rangeCheckForAdd(index);
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        // 判断数组是否扩容
+        ensureCapacityInternal(size + numNew); 
+        int numMoved = size - index;
+        // 如果 从当前集合中间插入参数集合，那么需要进行移动
+        if (numMoved > 0)
+        //  进行数组的拷贝,拷贝的长度就是移动的长度，将原数组进行后移
+            System.arraycopy(elementData, index, elementData, index + numNew, numMoved);
+        // 将参数数组添加到原数组中
+        System.arraycopy(a, 0, elementData, index, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+```
+
+java#ArrayList#add方法示例
 ```java
 
 @Slf4j
@@ -158,9 +195,98 @@ public class TestArrayList {
         list.add("456");
         log.info("data：{}", list);
     }
+    // 集合添加参数集合
+    @Test
+    public void testAddAll() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("123");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("new-temp-1");
+        tempList.add("new-temp-2");
+        list.addAll(tempList);
+        log.info("data：{}", list);
+        list.addAll(1, tempList);
+        log.info("data：{}", list);
+    }
 }
 ```
 
+#### ArrayList 查询
+
+##### ArrayList#get
+
+查询集合中的元素：首先判断index索引是否超过了当前数组的长度，如果超过了，那么抛出IndexOutOfBoundsException异常
+如果没超过，那么直接返回数组对应的下标元素
+
+```java
+    public E get(int index) {
+        // 查看元素是否大于当前数组，如果大于那么抛出异常
+        rangeCheck(index);
+        return elementData(index);
+    }
+
+    private void rangeCheck(int index) {
+        if (index >= size)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+    }
+    
+    E elementData(int index) {
+        return (E) elementData[index];
+    }
+```
+
+##### ArrayList#indexOf(Object o)
+
+indexOf方法传递一个对象，首先判断参数对象是否是null，如果是null，进行循环查找，如果不为null，那么通过 参数对象.equals进行判断是否相同，
+如果没有查到，那么直接返回 -1
+
+```java
+    public int indexOf(Object o) {
+        if (o == null) {
+            for (int i = 0; i < size; i++)
+                if (elementData[i]==null)
+                    return i;
+        } else {
+            for (int i = 0; i < size; i++)
+                if (o.equals(elementData[i]))
+                    return i;
+        }
+        return -1;
+    }
+```
+
+
+
+ArrayList的get方法示例：
+```java
+@Slf4j
+public class TestArrayList {
+
+    // 查询集合中的元素
+    @Test
+    public void testGet() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("get查询到的元素为：{}", list.get(2));
+    }
+
+    // 查询集合中的元素索引位置
+    @Test
+    public void testIndexOf() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("4576");
+        list.add("9723e9");
+        list.add("9723e9324");
+        log.info("indexOf查询到的元素为：{}", list.indexOf("4576"));
+    }
+}
+```
 
 
 
