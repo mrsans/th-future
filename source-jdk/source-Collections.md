@@ -120,6 +120,14 @@ public interface Collection<E> extends Iterable<E> {
 
 Collections中的内部类：
 
+主要分为以下几个部分：
+
+1. UnmodifiableXxxxx 不可修改类
+2. SynchronizedXxxxx 同步类
+3. CheckedXxxxx 
+4. EmptyXxxx 
+
+
 ![](images/collection/collections-内部类.jpg)
 
 ```java
@@ -167,30 +175,109 @@ class UnmodifiableCollection<E> implements Collection<E>, Serializable {
         throw new UnsupportedOperationException();
     }
 }
+// ex
+@Slf4j
+public class TestCollections {
+
+    @Test
+    public void testUnmodifiableCollection() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("7");
+        List<String> unmodifiableList = Collections.unmodifiableList(list);
+        // 获取值，那么不会抛出异常
+        String s = unmodifiableList.get(0);
+        log.info("获取到的值：{}", s);
+        // 修改值的时候，抛出异常 UnsupportedOperationException
+        unmodifiableList.set(0, "newstring");
+    }
+
+}
+
 ```
+
+
+同步集合，位于Collections中，带有SynchronizedXxxx的类，都是线程安全的，查看底层源码，均包含了 synchronized关键字，而此关键字处于同步块，而
+同步的锁是定义了一个Object成员变量。
+```java
+@Slf4j
+public class TestCollections {
+
+    @Test
+    public void testSynchronizedCollection() throws InterruptedException {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("3");
+        list.add("4");
+        List<String> synchronizedList = Collections.synchronizedList(list);
+        for (int i = 0; i < 100; i++) {
+            add(synchronizedList, i);
+        }
+        TimeUnit.SECONDS.sleep(5);
+        log.info("获取到的同步值为：{}", synchronizedList);
+    }
+
+    public void add(List<String> synchronizedList, int num) {
+        new Thread(() -> {
+            synchronizedList.add("newS-" + num);
+        }).start();
+    }
+}
+```
+Collections.CheckedXxxx 用于返回一个类型安全的视图。如果我们未加泛型，后期需要添加另一种类型，那么可以使用此方法：
+
+比如：
 
 ```java
- /*
-  * UnmodifiableSet.class 
-  * 继承了 UnmodifiableCollection.class 类，所有方法实现和UnmodifiableCollection一样
-  **/
+@Slf4j
+public class TestCollections {
+
+    @Test
+    public void testCheckedCollection() {
+        // 现在可以添加任何类型
+        List list = new ArrayList<>();
+        list.add("1s");
+        list.add(1);
+        list.add("3");
+        list.add("5");
+        // 当调用此方法，返回了一个集合，那么此后添加元素必须是 Integer类型，否则报错
+        List checkedList = Collections.checkedList(list, Integer.class);
+        // 会报错，因为不是Integer类型
+        checkedList.add("2c");
+        log.info("{}", checkedList);
+    }
+}
+
 ```
+
+Collections.EmptyXxxx 方法,返回一个空集合，没有任何元素，也不允许对此集合进行增删改查操作，但是此对象不为null
 
 ```java
-/*
- * UnmodifiableList.class
- * 不可修改集合，此集合继承了UnmodifiableCollection此类，但是有独立的操作集合的方法，只要涉及到操作的，
- * 全部重写，并且抛出 UnsupportedOperationException 异常
- * 如果是查询相关，那么调用内部变量，内部变量和初始化时，传递过来的对象是一个对象，所以，直接调用对应的内部变量方法即可
- **/
+@Slf4j
+public class TestCollections {
+
+    @Test
+    public void testEmptyCollection() {
+        List<String> list = Collections.emptyList();
+        log.info("{}", list);
+    }
+}
 ```
 
+Collections.SingletonXxxx 用于返回一个元素的对象，注意不是**单例对象**，如果继续向里面添加数据，那么会报错【UnsupportedOperationException异常】
 
+```java
+@Slf4j
+public class TestCollections {
 
-
-
-
-
+    @Test
+    public void testSingletonXxx() {
+        List<String> list = Collections.singletonList("123");
+        log.info("{}", list);
+    }
+}
+```
 
 
 
