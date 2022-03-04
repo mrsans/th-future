@@ -3,8 +3,9 @@ package org.future.source.collection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author: zhpj
@@ -17,7 +18,7 @@ public class TestCollection {
     @Test
     public void testCollection() {
 
-        Collection
+        List emptyList = Collections.EMPTY_LIST;
 
     }
 
