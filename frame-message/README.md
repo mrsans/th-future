@@ -17,6 +17,8 @@
 
 官方网址： https://kafka.apache.org/
 
+文档网址： https://kafka.apache.org/30/documentation.html#configuration
+
 集群搭建：
 
 kafka 在 v2.8.0 后将zookeeper替换掉，使用独立的集群管理工具。 目前搭建采用： zookeeper + kafka 进行搭建
@@ -668,7 +670,62 @@ kafka自动分区：
    
 ![](images/kafka/kafka-文件存储图解.jpg)
 
+   kafka 数据文件位置
 
+![](images/kafka/kafka-数据文件位置.jpg)
+
+kafka查看数据信息：
+```shell
+./bin/kafka-run-class.sh kafka.tools.DumpLogSegments --files logs/test-topic-0/00000000000000000000.index
+./bin/kafka-run-class.sh kafka.tools.DumpLogSegments --files logs/test-topic-0/00000000000000000000.log
+```
+
+![](images/kafka/kafka-查看数据文件信息.jpg)
+
+#### kafka索引文件详解
+
+![](images/kafka/kafka-索引文件详解.jpg)
+
+#### kafka文件清理策略
+
+kafka日志默认存储7天，可通过配置文件进行修改
+
+log.retention.hours 最低优先级小时，默认7天
+
+log,retention.minutes 分钟
+
+log.retention.ms 最高优先级毫秒
+
+log.retention.check.interval.ms 负责设置检查周期，默认5分钟一次
+
+#### kafka 日志的删除策略
+
+log.cleanup.policy [delete] 所有数据进行删除
+
+   1. 基于时间：默认打开，就是以segment的最后一条数据的时间戳进行删除
+   2. 基于大小：默认关闭，超过所有日志的总大小，删除最早的segment，即：超过日志大小，自动删除 log.retention.bytes = -1 默认无穷大
+
+log.cleanup.policy [compact] 压缩数据
+
+![](images/kafka/kafka-compact日志压缩策略.jpg)
+
+
+#### kafka 高效读写
+
+   1. kafka分布式集群，分区并行度高
+   2. 读写数据采用了稀疏索引，可以快速定位
+   3. 顺序读写磁盘，降低了磁盘的磁针的寻址速度
+   4. 采用了零拷贝技术
+      ![](images/kafka/kafka-零拷贝技术.jpg)
+
+
+#### kafka 的消费方式
+
+   1. 消费者主动拉取 缺点：如果没有消息，那么将会一直循环，浪费性能 ---- kafka采用的方式
+   2. 服务器主动推送消息 【缺点：无法判断消费者消费的速度，所以未采用】
+
+
+#### kafka 消费者的总体流程
 
 ### pulsar
 
