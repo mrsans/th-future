@@ -13,6 +13,13 @@ import java.util.List;
 @Slf4j
 public class TestArrayList {
 
+    @Test
+    public void aa() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        System.out.println(list.get(1));
+    }
+
     // remove删除对应索引位置的对象
     @Test
     public void testRemove_2() {

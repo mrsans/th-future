@@ -547,8 +547,15 @@ public class TestArrayList {
 ```
 
 
+### ArrayList总结
 
-
+1. arrayList初始化创建对象，如果没有分配数组的容量，那么默认是暂时不分配的，只不过是创建了一个数组对象，当我们调用添加操作的时候，才会初始化容量
+2. arrayList的clear方法，并不是立刻清空的，是遍历清空的，它的目的是防止对象地址变更，如果集合足够庞大，且此集合后期可以进行变更，那么可以将变量重新分配，即：new ArrayList()性能更好
+3. arrayList只要带有索引参数的，都会去判断是否越界，检查越界的两个方法一个是：rangeCheck()检查是否大于等于size，如果是抛异常，另一个是rangeCheckForAdd()此方法判断是否大于size或者小于0，如果是抛出索引越界异常
+4. arrayList调用remove(Object obj)的时候删除的是一个对象
+5. arrayList的fastRemove(int index)方法和 remove(int index) 一样，只不过remove方法有返回值，而fastRemove没有返回值
+6. arrayList的indexOf和lastIndexOf一个是从前向后找，一个是从后向前找，可以用适合的方法，进行快速找到对应的数据
+7. 
 ### 
 
 
