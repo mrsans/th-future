@@ -4,3 +4,7 @@ spring:
   profiles:
 #    active: rwseparation   # 读写分离
     active: subdatabasetable   # 分库分表
+
+management:
+  endpoints:
+    enabled-by-default: false

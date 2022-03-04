@@ -35,6 +35,7 @@
         <module>sh-custom-spring</module>
         <module>frame-shardingjdbc</module>
         <module>source-jdk</module>
+        <module>source-spring</module>
     </modules>
 
     <properties>
