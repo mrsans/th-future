@@ -502,6 +502,24 @@ public E remove(int index) {
     return oldValue;
 }
 ```
+#### ArrayList#removeAll(Collection<?> c)
+
+删除参数集合中的所有元素，可以看出是迭代删除，使用的是迭代器
+
+```java
+public boolean removeAll(Collection<?> c) {
+        Objects.requireNonNull(c);
+        boolean modified = false;
+        Iterator<?> it = iterator();
+        while (it.hasNext()) {
+        if (c.contains(it.next())) {
+        it.remove();
+        modified = true;
+        }
+        }
+        return modified;
+}
+```
 
 ```java
 @Slf4j
@@ -543,9 +561,25 @@ public class TestArrayList {
         list.remove(2);
         log.info("remove删除对应索引位置的对象：{}", list);
     }
+    // 删除参数集合中的所有元素，如果集合中有重复数据，依然将重复数据删除
+    @Test
+    public void testRemoveAll() {
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("123");
+        list.add("1234");
+        list.add("1235");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("123");
+        tempList.add("1235");
+        list.removeAll(tempList);
+        log.info("得到的List集合为：{}", list);
+    }
 }
 ```
-
+```java
+    
+```
 
 ### ArrayList总结
 
@@ -556,7 +590,12 @@ public class TestArrayList {
 5. arrayList的fastRemove(int index)方法和 remove(int index) 一样，只不过remove方法有返回值，而fastRemove没有返回值
 6. arrayList的indexOf和lastIndexOf一个是从前向后找，一个是从后向前找，可以用适合的方法，进行快速找到对应的数据
 7. 
-### 
+
+### LinkedList
+
+### Vector
+
+### Arrays.asList(Object[])
 
 
 

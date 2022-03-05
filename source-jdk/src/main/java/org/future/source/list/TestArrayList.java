@@ -13,11 +13,19 @@ import java.util.List;
 @Slf4j
 public class TestArrayList {
 
+    // 删除参数集合中的所有元素，如果集合中有重复数据，依然将重复数据删除
     @Test
-    public void aa() {
+    public void testRemoveAll() {
         List<String> list = new ArrayList<>();
         list.add("123");
-        System.out.println(list.get(1));
+        list.add("123");
+        list.add("1234");
+        list.add("1235");
+        List<String> tempList = new ArrayList<>();
+        tempList.add("123");
+        tempList.add("1235");
+        list.removeAll(tempList);
+        log.info("得到的List集合为：{}", list);
     }
 
     // remove删除对应索引位置的对象
