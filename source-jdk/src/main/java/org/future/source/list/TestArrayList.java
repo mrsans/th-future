@@ -1,6 +1,7 @@
 package org.future.source.list;
 
 import lombok.extern.slf4j.Slf4j;
+import org.future.source.fast.FastList;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,6 +13,23 @@ import java.util.List;
  */
 @Slf4j
 public class TestArrayList {
+
+    @Test
+    public void testFastList() {
+        FastList<Integer> list = new FastList<>();
+        for (int i = 0; i <= 100; i++) {
+            list.add(i);
+        }
+        for (int i = 100; i >= 0; i--) {
+            list.set(i, i);
+        }
+        list.remove(0);
+        list.remove(1);
+        for (int i = 0; i < 50; i++) {
+            log.info("值：{}",list.get(i));
+        }
+        log.info("快速集合：{}", list);
+    }
 
     // 删除参数集合中的所有元素，如果集合中有重复数据，依然将重复数据删除
     @Test

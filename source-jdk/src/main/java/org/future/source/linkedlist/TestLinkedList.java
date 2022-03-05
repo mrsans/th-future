@@ -14,6 +14,36 @@ import java.util.List;
 @Slf4j
 public class TestLinkedList {
 
+    // 设置集合固定位置的元素
+    @Test
+    public void testSet() {
+        List<String> list = new LinkedList<>();
+        list.add("123");
+        list.add("456");
+        list.set(1, "798");
+        log.info("list集合元素为：{}", list);
+    }
+
+    // 获取固定位置的元素
+    @Test
+    public void testIndexOf() {
+        List<String> list = new LinkedList<>();
+        list.add("456");
+        list.add("123");
+        log.info("获取固定位置元素:{}", list.indexOf("123"));
+        log.info("倒叙获取固定位置的元素：{}", list.lastIndexOf("456"));
+    }
+
+    // 测试LinkedList的get方法
+    @Test
+    public void testGet() {
+        List<String> list = new LinkedList<>();
+        list.add("123");
+        list.add("456");
+        list.add("789");
+        log.info("list查到的数据为：{}", list.get(1));
+    }
+
     // 将参数集合添加到 LinkedList中
     @Test
     public void testAddAll_4() {
