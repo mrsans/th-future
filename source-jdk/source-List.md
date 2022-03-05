@@ -593,6 +593,10 @@ public class TestArrayList {
 
 ### LinkedList
 
+
+
+
+
 ### Vector
 
 ### Arrays.asList(Object[])
