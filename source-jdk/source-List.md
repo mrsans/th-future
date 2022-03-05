@@ -593,6 +593,232 @@ public class TestArrayList {
 
 ### LinkedList
 
+#### LinkedList 构造器
+
+##### LinkedList#LinkedList()
+##### LinkedList#LinkedList(Collection<? extends E> c)
+
+有参构造器，将有参数的集合追加到LinkedList上。
+
+```java
+public LinkedList() {}
+public LinkedList(Collection<? extends E> c) {
+        this();
+        addAll(c);
+}
+public boolean addAll(Collection<? extends E> c) {
+        return addAll(size, c);
+}
+public boolean addAll(int index, Collection<? extends E> c) {
+        checkPositionIndex(index);
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0)
+        return false;
+        Node<E> pred, succ;
+        if (index == size) {
+            succ = null;
+            pred = last;
+            } else {
+            succ = node(index);
+            pred = succ.prev;
+        }
+        for (Object o : a) {
+        Node<E> newNode = new Node<>(pred, e, null);
+        if (pred == null)
+            first = newNode;
+            else
+            pred.next = newNode;
+            pred = newNode;
+        }
+        if (succ == null) {
+            last = pred;
+        } else {
+            pred.next = succ;
+            succ.prev = pred;
+        }
+        size += numNew;
+        modCount++;
+        return true;
+}
+```
+```java
+@Slf4j
+public class TestLinkedList {
+
+    @Test
+    public void testConstruct() {
+        List<String> list_1 = new LinkedList<>();
+        List<String> tempList = new LinkedList<>();
+        tempList.add("new-1");
+        tempList.add("new-2");
+        List<String> list_2 = new LinkedList<>(tempList);
+        list_2.add("456");
+        list_1.add("!23");
+        log.info("获取到的集合为：{}", list_2);
+    }
+}
+```
+
+#### LinkedList添加函数
+
+##### LinkedList#add(E e)
+
+linkedList的add方法，追加一个元素到linkedlist的末尾，首先创建一个内部类对象Node节点，将当前元素的最后一个节点和数据元素传递过去，传递过去后，其prev指向
+原来的last节点，然后last节点指向新的节点，如果当前linkedList的最后一个节点是null，那么此集合是空元素集合，第一个节点指向此Node，如果不是空元素集合，
+那么原集合的next节点指向新的node节点
+
+```java
+public boolean add(E e) {
+        linkLast(e);
+        return true;
+}
+
+void linkLast(E e) {
+    final Node<E> l = last;
+    // 创建一个node元素，此元素的前一个prev节点，指向原集合的last节点
+    final Node<E> newNode = new Node<>(l, e, null);
+    last = newNode;
+    // 如果last节点是null，那么就是一个空元素集合，第一个元素就是新node
+    if (l == null)
+        first = newNode;
+    else
+        // 不是空元素集合，那么 最后一个节点的下一个节点就是 新node
+        l.next = newNode;
+    size++;
+    modCount++;
+ }
+```
+
+##### LinkedList#add(int index, E element)
+
+LinkedList添加元素，index索引位置，E element 数据元素，首先检测元素的位置索引，如果位置索引小于0且大于当前长度，那么抛出异常。否则判断追加的位置，
+如果是最后一个元素，那么直接将last节点和next节点赋值成新的node，否则 linkBefore 优先寻找节点所在的位置，然后在对应的位置将前一个元素的next节点指向
+新的节点，后一个元素的prev节点指向新的node即可。
+
+```java
+public void add(int index, E element) {
+        checkPositionIndex(index);
+        if (index == size)
+            linkLast(element);
+        else
+            linkBefore(element, node(index));
+}
+
+private void checkPositionIndex(int index){
+        if(!isPositionIndex(index))
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+private boolean isPositionIndex(int index) {
+        return index >= 0 && index <= size;
+}
+
+void linkLast(E e) {
+    final Node<E> l = last;
+    final Node<E> newNode = new Node<>(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else 
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+
+void linkBefore(E e, Node<E> succ) {
+    final Node<E> pred = succ.prev;
+    final Node<E> newNode = new Node<>(pred, e, succ);
+    succ.prev = newNode;
+    if (pred == null)
+        first = newNode;
+    else
+        pred.next = newNode;
+    size++;
+    modCount++;
+}
+```
+
+##### LinkedList#addAll(Collection<T> c) 和 addAll(int index, Collection<T> c)
+
+从源码中可以看出，addAll(Collection<T> c) 调用的是 addAll(int index, Collection<T> c) 的方法，同样，addAll会优先检查索引是否越界，检查完成后，
+检查 参数集合的数组长度，如果数组长度为0， 那么不添加到linkedlist中，如果index参数和size参数一致，那么只有一个元素，否则，开始追加添加到node节点
+
+```java
+public boolean addAll(int index, Collection<? extends E> c) {
+        checkPositionIndex(index);
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        if (numNew == 0)
+        return false;
+        Node<E> pred, succ;
+        if (index == size) {
+            succ = null;
+            pred = last;
+        } else {
+            succ = node(index);
+            pred = succ.prev;
+        }
+        for (Object o : a) {
+            Node<E> newNode = new Node<>(pred, e, null);
+            if (pred == null)
+            first = newNode;
+            else
+            pred.next = newNode;
+            pred = newNode;
+        }
+        if (succ == null) {
+            last = pred;
+        } else {
+            pred.next = succ;
+            succ.prev = pred;
+        }
+        size += numNew;
+        modCount++;
+        return true;
+   }
+```
+
+```java
+@Slf4j
+public class TestLinkedList {
+
+    // 测试linkedlist的添加方法
+    @Test
+    public void testAdd() {
+        List<String> list = new LinkedList<>();
+        list.add("123");
+        list.add("1234");
+        list.add("12345");
+        log.info("linkedList添加后的结果为：{}", list);
+    }
+    // 添加元素带有索引位置
+    @Test
+    public void testAdd_2() {
+        List<String> list = new LinkedList<>();
+        list.add(0, "234");
+        list.add(1, "234");
+        log.info("add方法添加元素，新的集合为：{}", list);
+    }
+    // 将参数集合添加到 LinkedList中
+    @Test
+    public void testAdd_3() {
+        List<String> list = new LinkedList<>();
+        List<String> tempList= new ArrayList<>();
+        tempList.add("123");
+        list.addAll(tempList);
+        log.info("新的集合元素为：{}", list);
+    }
+    // 将参数集合添加到 LinkedList中
+    @Test
+    public void testAddAll_4() {
+        List<String> list = new LinkedList<>();
+        List<String> tempList= new ArrayList<>();
+        tempList.add("123");
+        list.addAll(0, tempList);
+        log.info("新的集合元素为：{}", list);
+    }
+}
+```
 
 
 
