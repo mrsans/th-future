@@ -146,15 +146,29 @@ redis是有序的存储，按我们放入的顺序进行存储，底层采用的
 ziplist和quicklist
 
 ```text
-如果redis采用双端链表，那么需要   *prev 占8byte  *next 占8byte ，那么一个数据最少需要16byte进行存储。
+如果redis采用双端链表，那么需要   *prev 占8byte  *next 占8byte ，那么一个数据有前后节点，那么最少需要16byte进行存储。
 redis采用的是ziplist进行存储。
+为什么使用quicklist，因为ziplist过长，操作集合时候，需要频繁的复制数据，性能过差，加入quicklist后，可以减小ziplist的长度，从而添加删除集合速度更快
 ```
 
+ziplist存储结构如下：
+
+![](images/redis-ziplist存储结构.jpg)
+
+quicklist的数据结构
+
+![](images/redis-quicklist.jpg)
 
 
+#### redis set
+
+当满足以下两个条件的时候，set将会转变成hashtable表示，负责set是一个有序的数组
+
+1. 元素个数大于set-max-intset-entries 
+2. 元素无法用整型表示
 
 
-
+#### redis的hash数据结构
 
 
 
