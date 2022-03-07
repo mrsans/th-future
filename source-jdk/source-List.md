@@ -819,11 +819,131 @@ public class TestLinkedList {
     }
 }
 ```
+#### LinkedList的查询方法
+##### LinkedList#get(int index)
+LinkedList的get方法，传递一个index的参数，优先判断index参数的索引是否 大于0，并且小于当前LinkedList的长度，如果不是，那么抛出索引越界异常，
+如果符合条件，那么开始遍历查询，遍历时可以看到，node(int index)方法，会优先计算index是否是size的一半，如果小于一半，那么从前向后迭代，如果是大于一半，
+那么直接从后向前遍历，找到对应的位置。
+```java
+public E get(int index) {
+        checkElementIndex(index);
+        return node(index).item;
+}
 
+Node<E> node(int index) {
+    // assert isElementIndex(index);
 
+    if (index < (size >> 1)) {
+        Node<E> x = first;
+    for (int i = 0; i < index; i++)
+        x = x.next;
+        return x;
+    } else {
+        Node<E> x = last;
+    for (int i = size - 1; i > index; i--)
+        x = x.prev;
+        return x;
+    }
+}
+```
+##### LinkedList#indexOf(Object o)#lastIndexOf(Object o)
+正序或者倒叙获取固定位置的元素
+查询元素主要分为：1 参数对象为null的情况和不为null的情况，如果为null那么就去判断 == ，如果不为null，使用.equals方法进行判断对象是否相等
+```java
+ public int indexOf(Object o) {
+        int index = 0;
+        if (o == null) {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (x.item == null)
+                    return index;
+                index++;
+            }
+        } else {
+            for (Node<E> x = first; x != null; x = x.next) {
+                if (o.equals(x.item))
+                    return index;
+                index++;
+            }
+        }
+        return -1;
+}
 
+public int lastIndexOf(Object o) {
+    int index = size;
+    if (o == null) {
+        for (Node<E> x = last; x != null; x = x.prev) {
+            index--;
+            if (x.item == null)
+                return index;
+        }
+    } else {
+        for (Node<E> x = last; x != null; x = x.prev) {
+            index--;
+        if (o.equals(x.item))
+            return index;
+        }
+    }
+    return -1;
+}
+```
+##### LinkedList#set(int index, E o)
+设置固定位置元素的值,首先检测 int index 索引是否越界，如果没越界，那么采用node方法，去循环查询到对应的元素。
+node方法，先判断index的值是否小于size，如果小于，那么从前向后查询，如果大于，那么从后向前查询，找到对应的位置后，将对应的值设置成新的值
+```java
+public E set(int index, E element) {
+        checkElementIndex(index);
+        Node<E> x = node(index);
+        E oldVal = x.item;
+        x.item = element;
+        return oldVal;
+}
+```
+
+```java
+@Slf4j
+public class TestLinkedList {
+
+    // 测试LinkedList的get方法
+    @Test
+    public void testGet() {
+        List<String> list = new LinkedList<>();
+        list.add("123");
+        list.add("456");
+        list.add("789");
+        log.info("list查到的数据为：{}", list.get(1));
+    }
+    // 获取固定位置的元素
+    @Test
+    public void testIndexOf() {
+        List<String> list = new LinkedList<>();
+        list.add("456");
+        list.add("123");
+        log.info("获取固定位置元素:{}", list.indexOf("123"));
+        log.info("倒叙获取固定位置的元素：{}", list.lastIndexOf("456"));
+    }
+    // 设置集合固定位置的元素
+    @Test
+    public void testSet() {
+        List<String> list = new LinkedList<>();
+        list.add("123");
+        list.add("456");
+        list.set(1, "798");
+        log.info("list集合元素为：{}", list);
+    }
+}
+```
+
+### 自定义ArrayList
+
+```java
+@see org.future.source.fast.FastList
+```
 
 ### Vector
+
+
+
+
 
 ### Arrays.asList(Object[])
 
